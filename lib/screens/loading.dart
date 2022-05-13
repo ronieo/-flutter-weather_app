@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:search_weather/data/my_location.dart';
 import 'package:search_weather/data/fetchdata.dart';
 import 'package:search_weather/screens/weather_screen.dart';
@@ -34,16 +33,24 @@ class _LoadingState extends State<Loading> {
     debugPrint(longitude3.toString());
 
     FetchData fetchData = FetchData(
-        'https://api.openweathermap.org/data/2.5/weather?lat=$latitude3&lon=$longitude3&appid=$apikey&units=metric');
+        'https://api.openweathermap.org/data/2.5/weather'
+            '?lat=$latitude3&lon=$longitude3&appid=$apikey&units=metric',
+        'https://api.openweathermap.org/data/2.5/air_pollution'
+            '?lat=$latitude3&lon=$longitude3&appid=$apikey');
 
     var weatherData = await fetchData.getJsonData();
     debugPrint(weatherData.toString());
+
+    var airData = await fetchData.getAirData();
+    debugPrint(airData.toString());
+
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) {
           return WeatherScreen(
             parseWeatherData: weatherData,
+            parseAirPollution: airData,
           );
         },
       ),
@@ -61,7 +68,7 @@ class _LoadingState extends State<Loading> {
     return Scaffold(
         body: Center(
             child: ElevatedButton(
-      onPressed: () => null,
+      onPressed: () {},
       style: ElevatedButton.styleFrom(
         primary: Colors.deepPurple,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),

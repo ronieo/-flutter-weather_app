@@ -1,30 +1,47 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:timer_builder/timer_builder.dart';
+import 'package:search_weather/model/model.dart';
 
 class WeatherScreen extends StatefulWidget {
-  const WeatherScreen({this.parseWeatherData});
+  const WeatherScreen({this.parseWeatherData, this.parseAirPollution});
   final dynamic parseWeatherData;
+  final dynamic parseAirPollution;
 
   @override
   State<WeatherScreen> createState() => _WeatherScreenState();
 }
 
 class _WeatherScreenState extends State<WeatherScreen> {
+  Model model = Model();
   late String cityName;
   late int temp;
-  late date = DateTime.now();
+  late Widget icon;
+  late Widget airIcon;
+  late Widget airState;
+  late double dust1; //...미세먼지
+  late double dust2; //...초미세먼지
+  late String des;
+  var date = DateTime.now();
 
   @override
   void initState() {
     super.initState();
-    updateData(widget.parseWeatherData);
+    updateData(widget.parseWeatherData, widget.parseAirPollution);
   }
 
-  void updateData(dynamic weatherData) {
+  void updateData(dynamic weatherData, dynamic airData) {
     double temp2 = weatherData['main']['temp'];
+    int condition = weatherData['weather'][0]['id'];
+    int index = airData['list'][0]['main']['aqi'];
+    dust1 = airData['list'][0]['components']['pm2_5'];
+    dust2 = airData['list'][0]['components']['pm10'];
+    des = weatherData['weather'][0]['description'];
     temp = temp2.round();
     cityName = weatherData['name'];
+    icon = model.getWeatherIcon(condition)!;
+    airIcon = model.getAirIcon(index)!;
+    airState = model.getAirCondition(index)!;
 
     print(temp);
     print(cityName);
@@ -58,7 +75,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
               ),
             ),
           ]),
-     body: Container(
+      body: Container(
         child: Stack(
           children: [
             Image.asset(
@@ -85,7 +102,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
                             ),
                             Text(
                               '$cityName',
-                               style:TextStyle(
+                              style: TextStyle(
                                   fontSize: 35.0,
                                   fontWeight: FontWeight.bold,
                                   color: Colors.white),
@@ -98,16 +115,16 @@ class _WeatherScreenState extends State<WeatherScreen> {
                                     print('${getSystemTime()}');
                                     return Text(
                                       '${getSystemTime()}',
-                                       style:TextStyle(
+                                      style: TextStyle(
                                           fontSize: 16.0, color: Colors.white),
                                     );
                                   },
                                 ),
                                 Text(DateFormat(' - EEEE, ').format(date),
-                                     style:TextStyle(
+                                    style: TextStyle(
                                         fontSize: 16.0, color: Colors.white)),
                                 Text(DateFormat('d MMM, yyy').format(date),
-                                     style:TextStyle(
+                                    style: TextStyle(
                                         fontSize: 16.0, color: Colors.white))
                               ],
                             )
@@ -118,7 +135,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
                           children: [
                             Text(
                               '$temp\u2103',
-                               style:TextStyle(
+                              style: TextStyle(
                                   fontSize: 85.0,
                                   fontWeight: FontWeight.w300,
                                   color: Colors.white),
@@ -131,7 +148,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
                                 ),
                                 Text(
                                   '$des',
-                                  style:TextStyle(
+                                  style: TextStyle(
                                     fontSize: 16.0,
                                     color: Colors.white,
                                   ),
@@ -157,7 +174,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
                             children: [
                               Text(
                                 'AQI(대기질지수)',
-                                 style:TextStyle(
+                                style: TextStyle(
                                   fontSize: 14.0,
                                   color: Colors.white,
                                 ),
@@ -176,7 +193,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
                             children: [
                               Text(
                                 '미세먼지',
-                                 style:TextStyle(
+                                style: TextStyle(
                                   fontSize: 14.0,
                                   color: Colors.white,
                                 ),
@@ -186,7 +203,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
                               ),
                               Text(
                                 '$dust1',
-                                 style:TextStyle(
+                                style: TextStyle(
                                   fontSize: 24.0,
                                   color: Colors.white,
                                 ),
@@ -196,11 +213,10 @@ class _WeatherScreenState extends State<WeatherScreen> {
                               ),
                               Text(
                                 '㎍/m3',
-                                 style:TextStyle(
+                                style: TextStyle(
                                     fontSize: 14.0,
                                     color: Colors.white,
-                                    fontWeight: FontWeight.bold
-                                ),
+                                    fontWeight: FontWeight.bold),
                               ),
                             ],
                           ),
@@ -208,7 +224,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
                             children: [
                               Text(
                                 '초미세먼지',
-                                 style:TextStyle(
+                                style: TextStyle(
                                   fontSize: 14.0,
                                   color: Colors.white,
                                 ),
@@ -218,7 +234,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
                               ),
                               Text(
                                 '$dust2',
-                                 style:TextStyle(
+                                style: TextStyle(
                                   fontSize: 24.0,
                                   color: Colors.white,
                                 ),
@@ -228,11 +244,10 @@ class _WeatherScreenState extends State<WeatherScreen> {
                               ),
                               Text(
                                 '㎍/m3',
-                                style:TextStyle(
+                                style: TextStyle(
                                     fontSize: 14.0,
                                     color: Colors.white,
-                                    fontWeight: FontWeight.bold
-                                ),
+                                    fontWeight: FontWeight.bold),
                               ),
                             ],
                           ),
